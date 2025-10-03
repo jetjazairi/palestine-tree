@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Palestine Solidarity Tree</title>
+  <style>
+    body {
+      background: #f5f5f5;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    #tree {
+      position: relative;
+      margin: 50px auto;
+      width: 40px;
+      height: 100px;
+      background: sienna;
+      border-radius: 5px;
+      transition: all 0.5s ease;
+    }
+    .leaf {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: green;
+      border-radius: 50%;
+      animation: grow 0.5s ease forwards;
+    }
+    .flag {
+      position: absolute;
+      font-size: 20px;
+      animation: fall 1s ease forwards;
+    }
+    @keyframes grow {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+    @keyframes fall {
+      from { transform: translateY(-50px) scale(1.5); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 18px;
+      background: #006400;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #228B22;
+    }
+
+    /* Share buttons */
+    .share-buttons {
+      margin-top: 30px;
+    }
+    .share-buttons a {
+      display: inline-block;
+      margin: 0 10px;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      color: #fff;
+      font-weight: bold;
+    }
+    .whatsapp { background: #25D366; }
+    .twitter { background: #1DA1F2; }
+    .facebook { background: #4267B2; }
+  </style>
+</head>
+<body>
+  <h1>🌳 Stand with Palestine 🌳</h1>
+  <p>Each click plants a flag 🇵🇸 and grows the tree for everyone.</p>
+
+  <div id="tree"></div>
+  <button onclick="plantFlag()">Click to Plant a Flag 🇵🇸</button>
+
+  <p>Total Flags Planted: <span id="counter">0</span></p>
+
+  <!-- Share Buttons -->
+  <div class="share-buttons">
+    <p>📢 Share this tree with your friends:</p>
+    <a class="whatsapp" target="_blank"
+       href="https://wa.me/?text=🌳 Stand%20with%20Palestine!%20Every%20click%20plants%20a%20flag%20and%20grows%20our%20tree%20together.%20Join%20here:%20YOUR_WEBSITE_URL">
+       WhatsApp
+    </a>
+    <a class="twitter" target="_blank"
+       href="https://twitter.com/intent/tweet?text=🌳%20Stand%20with%20Palestine!%20Every%20click%20plants%20a%20flag%20and%20grows%20our%20tree.%20Join%20here:%20YOUR_WEBSITE_URL">
+       Twitter (X)
+    </a>
+    <a class="facebook" target="_blank"
+       href="https://www.facebook.com/sharer/sharer.php?u=YOUR_WEBSITE_URL">
+       Facebook
+    </a>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
+  <script>
+    // 👉 Replace with your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGfqZx9kvYzHQokU9a5wlgbd_x-Yugx4g",
+      authDomain: "palestine-tree.firebaseapp.com",
+      projectId: "palestine-tree",
+      storageBucket: "palestine-tree.firebasestorage.app",
+      messagingSenderId: "47294950321",
+      appId: "1:47294950321:web:2719cdf8d549f54ab6eb90",
+      measurementId: "G-0Y6F2CE5NV"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const tree = document.getElementById('tree');
+    const counter = document.getElementById('counter');
+    let height = 100;
+
+    // Sync tree with database
+    firebase.database().ref("clicks").on("value", snapshot => {
+      const clicks = snapshot.val() || 0;
+      counter.textContent = clicks;
+
+      // Adjust tree height
+      height = 100 + clicks * 2; 
+      tree.style.height = height + 'px';
+
+      // Add some leaves
+      for (let i = 0; i < clicks / 5; i++) {
+        addLeaf();
+      }
+    });
+
+    function plantFlag() {
+      // Add Palestine flag animation
+      const flag = document.createElement('div');
+      flag.classList.add('flag');
+      flag.style.left = (Math.random() * 40 - 10) + "px";
+      flag.textContent = "🇵🇸";
+      tree.appendChild(flag);
+
+      setTimeout(() => flag.remove(), 1200);
+
+      // Update Firebase
+      firebase.database().ref("clicks").transaction(current => (current || 0) + 1);
+    }
+
+    function addLeaf() {
+      const leaf = document.createElement('div');
+      leaf.classList.add('leaf');
+      leaf.style.top = Math.random() * (height - 20) + 'px';
+      leaf.style.left = (Math.random() * 60 - 20) + 'px';
+      tree.appendChild(leaf);
+    }
+  </script>
+</body>
+</html>
