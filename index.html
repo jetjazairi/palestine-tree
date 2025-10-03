@@ -14,107 +14,30 @@
     h1 { margin-top: 30px; font-size: 2.2em; }
     p { font-size: 1.1em; margin: 10px; }
 
-    #tree-container {
-      position: relative;
-      margin: 40px auto;
-      width: 300px;
-      height: 500px;
-    }
+    svg { margin: 20px auto; display: block; }
 
-    /* Trunk */
-    #trunk {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 70px;
-      height: 180px;
-      background: sienna;
-      border-radius: 30px 30px 10px 10px;
-      box-shadow: inset -6px 0 #8b4513, inset 6px 0 #a0522d;
-    }
-
-    /* Canopy */
-    #canopy {
-      position: absolute;
-      bottom: 150px;
-      left: 50%;
-      transform: translateX(-50%) scale(1);
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #228B22, #006400);
-      overflow: hidden;
-      transition: transform 1s ease;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    }
-
-    .leaf {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      background: radial-gradient(circle at 30% 30%, #7CFC00, #006400);
-      border-radius: 50%;
-    }
-
-    .flag {
-      position: absolute;
+    .heart {
       font-size: 18px;
-      animation: drop 0.8s ease;
+      animation: bloom 1s ease forwards, heartbeat 1.2s ease 1s;
+    }
+    .flag { font-size: 18px; }
+    .flower { font-size: 16px; animation: bloom 1s ease forwards; }
+
+    @keyframes bloom {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    .flower {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background: pink;
-      border-radius: 50%;
-      box-shadow: 0 0 4px rgba(255,105,180,0.6);
-      animation: bloom 1s ease;
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.4); }
+      60% { transform: scale(0.9); }
+      100% { transform: scale(1); }
     }
 
-    .bird {
-      position: absolute;
-      font-size: 22px;
-      animation: fly 12s linear infinite;
-    }
+    #branches path { transition: d 1s ease-in-out; }
 
-    .aura {
-      position: absolute;
-      top: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 450px;
-      height: 450px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,223,0,0.3), transparent);
-      z-index: -1;
-      animation: pulse 4s infinite;
-    }
-
-    .sparkle {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: gold;
-      border-radius: 50%;
-      animation: twinkle 2s infinite alternate;
-    }
-
-    @keyframes drop { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes bloom { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes pulse { from { transform: translateX(-50%) scale(0.95); } to { transform: translateX(-50%) scale(1.05); } }
-    @keyframes twinkle { from { opacity: 0.2; } to { opacity: 1; } }
-    @keyframes fly { from { left: -50px; top: 60px; } to { left: 110%; top: 100px; } }
-    @keyframes heartbeat { 
-      0% { transform: scale(1); } 
-      30% { transform: scale(1.4); } 
-      60% { transform: scale(0.9); } 
-      100% { transform: scale(1); } 
-    }
-
-    /* Button */
-    #button-container { position: relative; display: inline-block; }
     button {
       margin-top: 20px;
       padding: 14px 25px;
@@ -128,6 +51,9 @@
     }
     button:hover { background: #228B22; transform: scale(1.05); }
 
+    .counter { margin: 15px 0; font-size: 1.3em; font-weight: bold; }
+    .daily-message { font-style: italic; color: #444; margin-bottom: 20px; }
+
     .floating-heart {
       position: absolute;
       font-size: 18px;
@@ -135,38 +61,53 @@
       animation: floatUp 1s ease forwards;
       pointer-events: none;
     }
+
     @keyframes floatUp {
       from { transform: translateY(0); opacity: 1; }
-      to   { transform: translateY(-40px); opacity: 0; }
+      to { transform: translateY(-40px); opacity: 0; }
     }
-
-    .counter { margin: 15px 0; font-size: 1.3em; font-weight: bold; }
-    .daily-message { font-style: italic; color: #444; margin-bottom: 20px; }
   </style>
 </head>
 <body>
   <h1>💚 A Tree of Hearts for Palestine 💚</h1>
   <p>Every click is a heartbeat of solidarity. Together, our love makes the tree flourish.</p>
 
-  <div id="tree-container">
-    <div id="trunk"></div>
-    <div id="canopy"></div>
-  </div>
+  <!-- SVG Tree -->
+  <svg id="tree-svg" width="400" height="500" viewBox="0 0 400 500">
+    <!-- Aura (hidden until 1000 clicks) -->
+    <circle id="aura" cx="200" cy="220" r="150" fill="rgba(255,223,0,0.3)" visibility="hidden"/>
 
-  <div id="button-container">
+    <!-- Trunk -->
+    <rect id="trunk" x="190" y="370" width="20" height="80" fill="sienna" rx="8"/>
+
+    <!-- Canopy -->
+    <circle id="canopy" cx="200" cy="220" r="40" fill="url(#canopyGradient)" />
+
+    <!-- Branches -->
+    <g id="branches" stroke="#654321" stroke-width="3" fill="none" style="display:none;">
+      <path id="branch-left" d="M200,300 Q190,290 180,280" />
+      <path id="branch-right" d="M200,300 Q210,290 220,280" />
+      <path id="branch-upper-left" d="M200,270 Q195,260 190,250" />
+      <path id="branch-upper-right" d="M200,270 Q205,260 210,250" />
+    </g>
+
+    <!-- Gradients -->
+    <defs>
+      <radialGradient id="canopyGradient">
+        <stop offset="0%" stop-color="#7CFC00"/>
+        <stop offset="100%" stop-color="#006400"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <!-- Button -->
+  <div id="button-container" style="position: relative; display: inline-block;">
     <button onclick="plantHeart()">💚 Give a Heart of Solidarity</button>
   </div>
-  
+
+  <!-- Counter -->
   <div class="counter">Total Hearts Given: <span id="counter">0</span></div>
   <div class="daily-message">✨ Come back tomorrow and see how many more hearts have grown on our tree. ✨</div>
-
-  <!-- Share -->
-  <div class="share-buttons">
-    <p>💌 Let’s spread the love — share the tree and help it bloom.</p>
-    <a class="whatsapp" target="_blank" href="https://wa.me/?text=💚%20A%20Tree%20of%20Hearts%20for%20Palestine!%20Join%20us:%20YOUR_URL">WhatsApp</a>
-    <a class="twitter" target="_blank" href="https://twitter.com/intent/tweet?text=💚%20A%20Tree%20of%20Hearts%20for%20Palestine!%20Join%20us:%20YOUR_URL">Twitter (X)</a>
-    <a class="facebook" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=YOUR_URL">Facebook</a>
-  </div>
 
   <!-- Heartbeat sound -->
   <audio id="heart-sound" preload="auto">
@@ -174,11 +115,12 @@
     <source src="https://actions.google.com/sounds/v1/cartoon/pop.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Firebase SDK v8 -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
+    // 🔥 Replace with your Firebase config
         const firebaseConfig = {
       apiKey: "AIzaSyCGfqZx9kvYzHQokU9a5wlgbd_x-Yugx4g",
       authDomain: "palestine-tree.firebaseapp.com",
@@ -193,35 +135,29 @@
 
     const counter = document.getElementById('counter');
     const canopy = document.getElementById('canopy');
-    const container = document.getElementById('tree-container');
+    const trunk = document.getElementById('trunk');
+    const aura = document.getElementById('aura');
+    const svg = document.getElementById('tree-svg');
 
-    firebase.database().ref("clicks").on("value", snapshot => {
+    let localBuffer = 0;
+
+    // 🔄 Batched write every 10s
+    setInterval(() => {
+      if (localBuffer > 0) {
+        firebase.database().ref("clicks").transaction(c => (c || 0) + localBuffer);
+        localBuffer = 0;
+      }
+    }, 10000);
+
+    // Live sync
+    db.ref("clicks").on("value", snapshot => {
       const clicks = snapshot.val() || 0;
       counter.textContent = clicks;
-
-      // Scale canopy
-      let growth = 1 + clicks / 500;
-      canopy.style.transform = `translateX(-50%) scale(${growth})`;
-
-      // Reset canopy
-      canopy.innerHTML = "";
-      const radius = 120;
-
-      for (let i = 0; i < clicks; i++) {
-        if (i % 3 === 0) addHeart(radius, i);   // 💚❤️🤍🖤 cycle
-        if (i % 6 === 0) addLeaf(radius);       // 🌿
-        if (i % 15 === 0) addFlag(radius);      // 🇵🇸
-      }
-
-      // milestones
-      if (clicks >= 500) addFlowers(radius);
-      if (clicks >= 1000 && !document.querySelector(".bird")) addBirds();
-      if (clicks >= 2000 && !document.querySelector(".aura")) addAura();
-      if (clicks >= 5000) addSparkles();
+      growTree(clicks);
     });
 
     function plantHeart() {
-      firebase.database().ref("clicks").transaction(current => (current || 0) + 1);
+      localBuffer += 1; // add to batch
 
       // Play sound
       const sound = document.getElementById("heart-sound");
@@ -238,81 +174,81 @@
       float.style.transform = "translateX(-50%)";
       btnContainer.appendChild(float);
       setTimeout(() => float.remove(), 1000);
+
+      // Instant local visual feedback
+      addHeartOnBranch(Date.now());
     }
 
-    function addHeart(radius, index) {
-      const heart = document.createElement('div');
+    function growTree(clicks) {
+      // Canopy growth
+      let newRadius = 40 + Math.min(clicks, 1000) / 4;
+      canopy.setAttribute("r", newRadius);
+
+      // Trunk growth
+      let newHeight = 80 + Math.min(clicks, 1000) / 2;
+      let newWidth = 20 + Math.min(clicks, 1000) / 40;
+      trunk.setAttribute("y", 450 - newHeight);
+      trunk.setAttribute("height", newHeight);
+      trunk.setAttribute("width", newWidth);
+      trunk.setAttribute("x", 200 - newWidth/2);
+
+      // Branch growth after 100 clicks
+      if (clicks >= 100) {
+        document.getElementById("branches").style.display = "inline";
+        updateBranches(clicks);
+      }
+
+      // Milestones
+      if (clicks >= 500 && clicks % 10 === 0) addFlowerOnBranch();
+      if (clicks >= 1000) aura.setAttribute("visibility", "visible");
+    }
+
+    function updateBranches(clicks) {
+      const growthFactor = Math.min(clicks, 500) / 500;
+
+      document.getElementById("branch-left")
+        .setAttribute("d", `M200,300 Q${170 - 40*growthFactor},${250 - 30*growthFactor} ${150 - 40*growthFactor},${200 - 50*growthFactor}`);
+
+      document.getElementById("branch-right")
+        .setAttribute("d", `M200,300 Q${230 + 40*growthFactor},${250 - 30*growthFactor} ${250 + 40*growthFactor},${200 - 50*growthFactor}`);
+
+      document.getElementById("branch-upper-left")
+        .setAttribute("d", `M200,270 Q${185 - 20*growthFactor},${240 - 20*growthFactor} ${160 - 30*growthFactor},${180 - 40*growthFactor}`);
+
+      document.getElementById("branch-upper-right")
+        .setAttribute("d", `M200,270 Q${215 + 20*growthFactor},${240 - 20*growthFactor} ${240 + 30*growthFactor},${180 - 40*growthFactor}`);
+    }
+
+    function addHeartOnBranch(index) {
       const colors = ["💚", "❤️", "🤍", "🖤"];
+      const heart = document.createElementNS("http://www.w3.org/2000/svg", "text");
       heart.textContent = colors[index % colors.length];
-      heart.style.position = "absolute";
-      heart.style.fontSize = "20px";
-      heart.style.animation = "drop 0.8s ease, heartbeat 1s ease 0.8s"; 
-      const angle = Math.random() * 2 * Math.PI;
-      const r = Math.sqrt(Math.random()) * radius;
-      heart.style.left = (r * Math.cos(angle) + radius) + "px";
-      heart.style.top = (r * Math.sin(angle) + radius) + "px";
-      if (heart.textContent === "🤍") heart.style.textShadow = "0 0 3px black";
-      canopy.appendChild(heart);
+      heart.setAttribute("class", "heart");
+
+      // Pick random branch
+      const branchIds = ["branch-left", "branch-right", "branch-upper-left", "branch-upper-right"];
+      const branch = document.getElementById(branchIds[Math.floor(Math.random() * branchIds.length)]);
+      const length = branch.getTotalLength();
+      const pos = branch.getPointAtLength(Math.random() * length);
+
+      heart.setAttribute("x", pos.x);
+      heart.setAttribute("y", pos.y);
+      svg.appendChild(heart);
     }
 
-    function addLeaf(radius) {
-      const leaf = document.createElement('div');
-      leaf.classList.add('leaf');
-      const angle = Math.random() * 2 * Math.PI;
-      const r = Math.sqrt(Math.random()) * radius;
-      leaf.style.left = (r * Math.cos(angle) + radius) + "px";
-      leaf.style.top = (r * Math.sin(angle) + radius) + "px";
-      canopy.appendChild(leaf);
-    }
+    function addFlowerOnBranch() {
+      const flower = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      flower.textContent = "🌸";
+      flower.setAttribute("class", "flower");
 
-    function addFlag(radius) {
-      const flag = document.createElement('div');
-      flag.classList.add('flag');
-      flag.textContent = "🇵🇸";
-      const angle = Math.random() * 2 * Math.PI;
-      const r = Math.sqrt(Math.random()) * radius;
-      flag.style.left = (r * Math.cos(angle) + radius) + "px";
-      flag.style.top = (r * Math.sin(angle) + radius) + "px";
-      canopy.appendChild(flag);
-    }
+      const branchIds = ["branch-left", "branch-right", "branch-upper-left", "branch-upper-right"];
+      const branch = document.getElementById(branchIds[Math.floor(Math.random() * branchIds.length)]);
+      const length = branch.getTotalLength();
+      const pos = branch.getPointAtLength(Math.random() * length);
 
-    function addFlowers(radius) {
-      for (let i = 0; i < 15; i++) {
-        const flower = document.createElement('div');
-        flower.classList.add('flower');
-        const angle = Math.random() * 2 * Math.PI;
-        const r = Math.sqrt(Math.random()) * radius;
-        flower.style.left = (r * Math.cos(angle) + radius) + "px";
-        flower.style.top = (r * Math.sin(angle) + radius) + "px";
-        canopy.appendChild(flower);
-      }
-    }
-
-    function addBirds() {
-      for (let i = 0; i < 2; i++) {
-        const bird = document.createElement('div');
-        bird.classList.add('bird');
-        bird.textContent = "🕊️";
-        bird.style.top = (50 + i*40) + "px";
-        bird.style.left = "-50px";
-        container.appendChild(bird);
-      }
-    }
-
-    function addAura() {
-      const aura = document.createElement('div');
-      aura.classList.add('aura');
-      container.appendChild(aura);
-    }
-
-    function addSparkles() {
-      for (let i = 0; i < 20; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.classList.add('sparkle');
-        sparkle.style.left = (Math.random()*280) + "px";
-        sparkle.style.top = (Math.random()*280) + "px";
-        canopy.appendChild(sparkle);
-      }
+      flower.setAttribute("x", pos.x);
+      flower.setAttribute("y", pos.y);
+      svg.appendChild(flower);
     }
   </script>
 </body>
